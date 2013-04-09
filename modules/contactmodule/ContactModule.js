@@ -1,4 +1,4 @@
-function ContactModule(injector) {
+function ContactModule(container) {
     
     var self = this;
     
@@ -6,10 +6,10 @@ function ContactModule(injector) {
         WebApp.Require(['modules/contactmodule/contactlist/ContactListViewModel.js',
                         'modules/contactmodule/ContactController.js'], function() {
             
-            injector.register("contactListViewModel", "ContactListViewModel");
-            injector.register("contactController", "ContactController");
+            container.register("contactListViewModel", "ContactListViewModel");
+            container.register("contactController", "ContactController");
             
-            injector.resolve("contactController").run();
+            container.resolve("contactController").run();
         });
     };
 };

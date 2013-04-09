@@ -1,5 +1,5 @@
-// *********************** Injector (inject) ***************************************
-function Injector(){
+// *********************** Container (container) ***************************************
+function Container(){
     
     var self = this;
     self.dependencies = new Dictionary();
@@ -59,7 +59,7 @@ function Injector(){
     self.getDependencies = function(arr) {
         return arr.map(function(value) {
             value = $.trim(value);
-            if(value === 'injector')
+            if(value === 'container')
                 return self;
             else
             {
@@ -81,8 +81,8 @@ function Injector(){
     };
 }
 
-//************************ EventAggregator Service (eventAggregator) ***********************
-function EventAggregator() {
+//************************ EventManager Service (eventManager) ***********************
+function EventManager() {
     
     var self = this;
     
@@ -115,7 +115,7 @@ function EventAggregator() {
 }
 
 // *********************** Logger Service (logger) ************************
-function LogService() {
+function Logger() {
 
     var self = this;
     
@@ -137,7 +137,7 @@ function LogService() {
     };
 }
 
-// *********************** Region Manager ************************
+// *********************** RegionManager (regionManager) ************************
 function RegionManager(logger) {
     
     var self = this;
@@ -210,6 +210,6 @@ function Context(){
     
     var self = this;
     
-    self.injector = new Injector();
-    self.logger = new LogService();
+    self.container = new Container();
+    self.logger = new Logger();
 }

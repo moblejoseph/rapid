@@ -1,11 +1,11 @@
-function MenuController(injector,regionManager){
+function MenuController(container,regionManager){
     var self = this;
     
     self.run = function(){
-        var sideMenuViewModel = injector.resolve("sideMenuViewModel");
+        var sideMenuViewModel = container.resolve("sideMenuViewModel");
         regionManager.RegisterView("sidemenu", new View("sidemenu", "modules/menumodule/sidemenu/SideMenuView.htm", sideMenuViewModel));
         
-        var topMenuViewModel = injector.resolve("sideMenuViewModel");
+        var topMenuViewModel = container.resolve("sideMenuViewModel");
         regionManager.RegisterView("topmenu", new View("topmenu", "modules/menumodule/topmenu/TopMenuView.htm", topMenuViewModel));
     };
 }

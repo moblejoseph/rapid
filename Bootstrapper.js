@@ -6,15 +6,15 @@ function Bootstrapper() {
     self.context = new Context();
     
     self.registerCore = function(){
-        self.context.injector.registerSingle("logger", "LogService");
-        self.context.injector.registerSingle("regionManager", "RegionManager");
-        self.context.injector.registerSingle("eventAggregator", "EventAggregator");
+        self.context.container.registerSingle("logger", "Logger");
+        self.context.container.registerSingle("regionManager", "RegionManager");
+        self.context.container.registerSingle("eventManager", "EventManager");
     };
     
     self.registerModule = function(modulename, module){
         self.context.logger.log("Registering " + modulename + " to Bootstrapper");
         self.modules.setItem(modulename, module);
-        self.context.injector.register(module, module);
+        self.context.container.register(module, module);
     };
     
     self.registerModules = function(){
@@ -30,18 +30,18 @@ function Bootstrapper() {
             self.registerModule("Menu Module", "MenuModule");
             self.registerModule("Contact Module", "ContactModule");
             
-            self.start();
+            self.startModules();
         });
     };
     
-    self.Init = function(){
+    self.start = function(){
         self.registerCore();
         self.registerModules();
     };
     
-    self.start = function(){
+    self.startModules = function(){
         self.modules.each(function(k,v){
-            var module = self.context.injector.resolve(v);
+            var module = self.context.container.resolve(v);
             module.init(self.context);
             self.context.logger.log("Initiating " + k);
         });
@@ -50,5 +50,5 @@ function Bootstrapper() {
 
 $(document).ready(function() {
     var bootstrapper = new Bootstrapper();
-    bootstrapper.Init();
+    bootstrapper.start();
 });

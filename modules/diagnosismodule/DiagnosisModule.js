@@ -1,4 +1,4 @@
-function DiagnosisModule(injector) {
+function DiagnosisModule(container) {
     
     var self = this;
     
@@ -8,10 +8,10 @@ function DiagnosisModule(injector) {
         WebApp.Require(['modules/diagnosismodule/DiagnosisController.js', 
                         'modules/diagnosismodule/logmessage/LogMessageViewModel.js'], function() {
             
-            injector.register("logMessageViewModel", "LogMessageViewModel");
-            injector.register("diagnosisController", "DiagnosisController");
+            container.register("logMessageViewModel", "LogMessageViewModel");
+            container.register("diagnosisController", "DiagnosisController");
             
-            injector.resolve("diagnosisController").run();
+            container.resolve("diagnosisController").run();
         });
     };
 };

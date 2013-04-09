@@ -1,13 +1,13 @@
-function MainModule(injector) {
+function MainModule(container) {
     var self = this;
     self.init = function() {
         WebApp.Require(['modules/mainmodule/dashboard/DashboardViewModel.js',
                         'modules/mainmodule/MainController.js'], function() {
                        
-            injector.register("dashboardViewModel", "DashboardViewModel");
-            injector.register("mainController", "MainController");
+            container.register("dashboardViewModel", "DashboardViewModel");
+            container.register("mainController", "MainController");
             
-            injector.resolve("mainController").run();
+            container.resolve("mainController").run();
         });
     };
 };

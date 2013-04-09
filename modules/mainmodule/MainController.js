@@ -1,8 +1,8 @@
-function MainController(injector,navigationService){
+function MainController(container,navigationService){
     var self = this;
     
     self.run = function(){
-        var dashboardViewModel = injector.resolve("dashboardViewModel");
+        var dashboardViewModel = container.resolve("dashboardViewModel");
         navigationService.RegisterView("dashboard", new View("dashboard", "modules/mainmodule/dashboard/DashboardView.htm", dashboardViewModel));
     };
 }
