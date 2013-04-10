@@ -1,7 +1,7 @@
 var WebApp = {};
 
 // ****************** Constants ********************************
-WebApp.Root = "http://localhost/webstore/";
+
 
 // ****************** Load Functions ***************************
 

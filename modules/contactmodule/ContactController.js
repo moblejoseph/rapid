@@ -1,4 +1,5 @@
 function ContactController(container, navigationService){
+    
     var self = this;
     
     self.run = function(){

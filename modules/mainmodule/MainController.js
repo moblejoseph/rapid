@@ -1,4 +1,5 @@
-function MainController(container,navigationService){
+function MainController(container, navigationService){
+    
     var self = this;
     
     self.run = function(){

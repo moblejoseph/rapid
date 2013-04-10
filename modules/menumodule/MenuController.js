@@ -1,4 +1,4 @@
-function MenuController(container,regionManager){
+function MenuController(container, regionManager){
     var self = this;
     
     self.run = function(){

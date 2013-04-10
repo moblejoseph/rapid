@@ -1,4 +1,5 @@
-function DiagnosisController(container,regionManager){
+function DiagnosisController(container, regionManager){
+    
     var self = this;
     
     self.run = function(){

@@ -1,10 +1,10 @@
-function ContactModule(container) {
+function ContactModule(container, fileManager) {
     
     var self = this;
     
     self.init = function() {
-        WebApp.Require(['modules/contactmodule/contactlist/ContactListViewModel.js',
-                        'modules/contactmodule/ContactController.js'], function() {
+        fileManager.require(['modules/contactmodule/contactlist/ContactListViewModel.js',
+                             'modules/contactmodule/ContactController.js'], function() {
             
             container.register("contactListViewModel", "ContactListViewModel");
             container.register("contactController", "ContactController");

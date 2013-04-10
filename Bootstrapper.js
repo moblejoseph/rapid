@@ -3,22 +3,25 @@ function Bootstrapper() {
     var self = this;
     
     self.modules = new Dictionary();
-    self.context = new Context();
+    self.logger = new Logger();
+    self.container = new Container();
     
     self.registerCore = function(){
-        self.context.container.registerSingle("logger", "Logger");
-        self.context.container.registerSingle("regionManager", "RegionManager");
-        self.context.container.registerSingle("eventManager", "EventManager");
+        self.container.registerSingle("logger", "Logger");
+        self.container.registerSingle("fileManager", "FileManager");
+        self.container.registerSingle("regionManager", "RegionManager");
+        self.container.registerSingle("eventManager", "EventManager");        
     };
     
     self.registerModule = function(modulename, module){
-        self.context.logger.log("Registering " + modulename + " to Bootstrapper");
+        self.logger.log("Registering " + modulename + " to Bootstrapper");
         self.modules.setItem(modulename, module);
-        self.context.container.register(module, module);
+        self.container.register(module, module);
     };
     
     self.registerModules = function(){
-        WebApp.Require(['modules/navigationModule/NavigationModule.js',
+        var fileManager = self.container.resolve("fileManager");
+        fileManager.require(['modules/navigationModule/NavigationModule.js',
             'modules/diagnosismodule/DiagnosisModule.js',
             'modules/mainmodule/MainModule.js',
             'modules/menumodule/MenuModule.js',
@@ -41,9 +44,9 @@ function Bootstrapper() {
     
     self.startModules = function(){
         self.modules.each(function(k,v){
-            var module = self.context.container.resolve(v);
-            module.init(self.context);
-            self.context.logger.log("Initiating " + k);
+            var module = self.container.resolve(v);
+            module.init();
+            self.logger.log("Initiating " + k);
         });
     };
 }

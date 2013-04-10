@@ -1,55 +1,135 @@
+// *********************** FileManager (fileManager) ***************************************
+function FileManager(logger) {
+
+    var self = this;
+
+    self.loadedScripts = [];
+
+    self.scriptLoaded = function(url) {
+
+        for (var i = 0; i < self.loadedScripts.length; i++) {
+            if (self.loadedScripts[i].key === url)
+                return true;
+        }
+
+        return false;
+    };
+
+    self.loadScript = function(url, callback) {
+
+        if (!self.scriptLoaded(url)) {
+            var script = document.createElement("script");
+            script.type = "text/javascript";
+
+            if (script.readyState) {//IE
+                script.onreadystatechange = function() {
+                    if (script.readyState === "loaded" || script.readyState === "complete") {
+                        script.onreadystatechange = null;
+                        callback();
+                    }
+                };
+            }
+            else {//Others
+                script.onload = function() {
+                    callback();
+                };
+            }
+
+            script.src = url;
+            self.loadedScripts.push({"key": url, "src": script.src});
+            document.getElementsByTagName("body")[0].appendChild(script);
+        }
+        else {
+            logger.logError("Script " + url + " is already loaded");
+            callback();
+        }
+    };
+
+    self.require = function(urls, callback) {
+        var i = 0;
+        (function loadNextScript() {
+            if (i < urls.length) {
+                self.loadScript(urls[i], function() {
+                    ++i;
+                    loadNextScript();
+                });
+            }
+            else if (callback)
+                callback();
+        })();
+    };
+}
+;
+
 // *********************** Container (container) ***************************************
-function Container(){
-    
+function Container() {
+
     var self = this;
     self.dependencies = new Dictionary();
 
-    self.applyConstructor = function (ctor, args) {
-    // Triangle of hackery which handles host object constructors and intrinsics
+    self.applyConstructor = function(ctor, args) {
+        // Triangle of hackery which handles host object constructors and intrinsics
         switch (args.length) {
-            case 0: return new ctor;
-            case 1: return new ctor(args[0]);
-            case 2: return new ctor(args[0], args[1]);
-            case 3: return new ctor(args[0], args[1], args[2]);
-            case 4: return new ctor(args[0], args[1], args[2], args[3]);
-            case 5: return new ctor(args[0], args[1], args[2], args[3], args[4]);
-            case 6: return new ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
-            case 7: return new ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
-            case 8: return new ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-            case 9: return new ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+            case 0:
+                return new ctor;
+            case 1:
+                return new ctor(args[0]);
+            case 2:
+                return new ctor(args[0], args[1]);
+            case 3:
+                return new ctor(args[0], args[1], args[2]);
+            case 4:
+                return new ctor(args[0], args[1], args[2], args[3]);
+            case 5:
+                return new ctor(args[0], args[1], args[2], args[3], args[4]);
+            case 6:
+                return new ctor(args[0], args[1], args[2], args[3], args[4], args[5]);
+            case 7:
+                return new ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            case 8:
+                return new ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+            case 9:
+                return new ctor(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
         }
     };
-  
-    self.createInstance = function(name){
+
+    self.createInstance = function(name) {
         var target = WebApp.StringToFunction(name, "function");
         var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
         var text = target.toString();
         var args = text.match(FN_ARGS)[1].split(',');
         return self.applyConstructor(target, self.getDependencies(args));
     };
-    
+
     self.resolve = function(key) {
-        if(self.dependencies.hasItem(key))
+        if (self.dependencies.hasItem(key))
         {
             var dp = self.dependencies.getItem(key);
-            switch(dp.mode)
+            switch (dp.mode)
             {
-                case "single":
-                {
-                    if(dp.lastInstance === null)
+                case "instance":
                     {
-                        var instance =  self.createInstance(dp.type);
-                        dp.lastInstance = instance;
+                        if (dp.lastInstance === null)
+                            dp.lastInstance = dp.type;
+
+                        return dp.lastInstance;
                     }
-                    return dp.lastInstance;
-                }
+                case "single":
+                    {
+                        if (dp.lastInstance === null)
+                        {
+                            var instance = self.createInstance(dp.type);
+                            dp.lastInstance = instance;
+                        }
+                        return dp.lastInstance;
+                    }
                 case "multiple":
-                {
-                    var instance =  self.createInstance(dp.type);
-                    dp.instanceCount++;
-                    dp.lastInstance = instance;
-                    return instance;
-                }
+                    {
+                        var instance = self.createInstance(dp.type);
+                        dp.instanceCount++;
+                        dp.lastInstance = instance;
+                        return instance;
+                    }
             }
         }
         else
@@ -59,22 +139,27 @@ function Container(){
     self.getDependencies = function(arr) {
         return arr.map(function(value) {
             value = $.trim(value);
-            if(value === 'container')
+            if (value === 'container')
                 return self;
             else
             {
                 var dp = self.dependencies.getItem(value);
-                if(dp)
+                if (dp)
                     return self.resolve(dp.key);
             }
-        });            
+        });
+    };
+
+    self.registerInstance = function(key, dependency) {
+        var dp = new Dependency("instance", key, dependency);
+        this.dependencies.setItem(key, dp);
     };
 
     self.register = function(key, dependency) {
         var dp = new Dependency("multiple", key, dependency);
         this.dependencies.setItem(key, dp);
     };
-    
+
     self.registerSingle = function(key, dependency) {
         var dp = new Dependency("single", key, dependency);
         this.dependencies.setItem(key, dp);
@@ -83,32 +168,32 @@ function Container(){
 
 //************************ EventManager Service (eventManager) ***********************
 function EventManager() {
-    
+
     var self = this;
-    
+
     self.subscriptions = [];
-    
-    self.Subscribe = function(name, callback){
-            self.subscriptions.push({"name": name, "callback": callback});
-            return [name,callback];
+
+    self.Subscribe = function(name, callback) {
+        self.subscriptions.push({"name": name, "callback": callback});
+        return [name, callback];
     };
-    
-    self.UnSubscribe = function(args){
-        for(x=0;x<self.subscriptions.length;x++){
-            if(self.subscriptions[x].name === args[0], self.subscriptions[x].callback === args[1])
+
+    self.UnSubscribe = function(args) {
+        for (x = 0; x < self.subscriptions.length; x++) {
+            if (self.subscriptions[x].name === args[0], self.subscriptions[x].callback === args[1])
                 self.subscriptions.splice(x, 1);
         }
     };
-    
-    self.Publish = function(name, args){
+
+    self.Publish = function(name, args) {
         var temp = [];
-        if(self.subscriptions.length > 0){
-            for(var x=0;x<self.subscriptions.length;x++) {
-                if(self.subscriptions[x].name === name)
-                    temp.push({"fn":self.subscriptions[x].callback});
+        if (self.subscriptions.length > 0) {
+            for (var x = 0; x < self.subscriptions.length; x++) {
+                if (self.subscriptions[x].name === name)
+                    temp.push({"fn": self.subscriptions[x].callback});
             }
-            for(x=0;x<temp.length;x++){
-                temp[x].fn.apply(this,[args]);
+            for (x = 0; x < temp.length; x++) {
+                temp[x].fn.apply(this, [args]);
             }
         }
     };
@@ -118,20 +203,20 @@ function EventManager() {
 function Logger() {
 
     var self = this;
-    
+
     self.logs = ko.observableArray();
-    
-    self.log = function(log){
+
+    self.log = function(log) {
         self.logs.push(new Log(log, "info"));
         console.log(log);
     };
-    
-    self.logError = function(log){
+
+    self.logError = function(log) {
         self.logs.push(new Log(log, "error"));
         console.log(log);
     };
-    
-    self.logWarning = function(log){
+
+    self.logWarning = function(log) {
         self.logs.push(new Log(log, "warning"));
         console.log(log);
     };
@@ -139,36 +224,36 @@ function Logger() {
 
 // *********************** RegionManager (regionManager) ************************
 function RegionManager(logger) {
-    
+
     var self = this;
 
     self.views = new Dictionary();
 
     self.RegionExists = function(regionName) {
-        
+
         var regionNode = document.getElementById(regionName);
-        
-        if(regionNode)
+
+        if (regionNode)
             return true;
         else
             return false;
     };
-    
+
     self.LoadViewToRegion = function(regionName, viewContent, viewModel) {
-        
+
         var regionNode = document.getElementById(regionName);
-        if(regionNode){
+        if (regionNode) {
             regionNode.innerHTML = viewContent;
             ko.applyBindings(viewModel, regionNode);
         }
     };
 
     self.RegisterView = function(regionName, view) {
-        
-        logger.log("Registering "+ view.viewName + " to RegionManager");
-        
-        if(self.RegionExists(regionName)){
-            
+
+        logger.log("Registering " + view.viewName + " to RegionManager");
+
+        if (self.RegionExists(regionName)) {
+
             if (!view.isLoaded) {
                 var viewUrl = view.viewUrl;
                 var viewModel = view.viewModel;
@@ -182,7 +267,7 @@ function RegionManager(logger) {
                     logger.log(view.viewName + " view loaded Remotely and added to " + regionName + " Region");
 
                 });
-            } 
+            }
             else {
                 var viewContent = view.viewContent;
                 var viewModel = view.viewModel;
@@ -191,10 +276,10 @@ function RegionManager(logger) {
                 logger.log(view.viewName + " view loaded from Cache and added to " + regionName + " Region");
             }
         }
-        else{
+        else {
             logger.logError("Region \"" + regionName + "\" not found");
         }
-        
+
         self.views[regionName] = view;
     };
 }
@@ -203,13 +288,4 @@ function RegionManager(logger) {
 function DataManager() {
 
     var self = this;
-}
-
-// *********************** Context *********************************
-function Context(){
-    
-    var self = this;
-    
-    self.container = new Container();
-    self.logger = new Logger();
 }

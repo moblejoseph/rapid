@@ -1,10 +1,10 @@
-function NavigationModule(container) {
-    
+function NavigationModule(container, fileManager) {
+
     var self = this;
-    
+
     self.init = function() {
-        WebApp.Require(['modules/navigationModule/NavigationService.js'], function() {
-            
+        fileManager.require(['modules/navigationModule/NavigationService.js'], function() {
+
             container.registerSingle("navigationService", "NavigationService");
         });
     };
