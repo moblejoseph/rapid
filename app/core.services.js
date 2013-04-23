@@ -58,8 +58,7 @@ function FileManager(logger) {
                 callback();
         })();
     };
-}
-;
+};
 
 // *********************** Container (container) ***************************************
 function Container() {

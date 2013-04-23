@@ -1,13 +1,5 @@
-function ContactListViewModel() {
+function ContactListViewModel(container, navigationService) {
     var self = this;
-    
-    self.addPage = "Add";
-    self.editPage = "Edit";
-    self.detailsPage = "Details";
-    self.listPage = "List";
-    self.currentPage = ko.observable(self.listPage);
-    
-    self.firstname = ko.observable();
     
     self.contacts = ko.observableArray([
             { type: "Client", firstName: 'Bert', lastName: 'Bertington' },
@@ -22,31 +14,16 @@ function ContactListViewModel() {
             { type: "Client", firstName: 'Bert', lastName: 'Bertington' }
         ]);
     
-    self.AddCommand = function() {
-        if(self.currentPage() === self.addPage){
-            self.contacts.push({ type: "Client", firstName: 'Bert', lastName: 'Bertington' });
-        }
-        else{
-            
-        }
-
-        self.currentPage(self.listPage);
-    };
-    
-    self.CancelCommand = function(){
-        self.currentPage(self.listPage);
-    };
-    
     self.ShowAddViewCommand = function(){
-        self.currentPage(self.addPage);
+        navigationService.Navigate("contactadd");
     };
-    
+
     self.ShowDetailsViewCommand = function(){
-        self.currentPage(self.detailsPage);
+        navigationService.Navigate("contactdetails");
     };
     
     self.ShowEditViewCommand = function(){
-        self.currentPage(self.editPage);
+        navigationService.Navigate("contactadd");
     };
     
     self.ShowDeleteViewCommand = function(contact) {
