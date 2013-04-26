@@ -1,3 +1,50 @@
+// *********************** Application ****************************************************
+function Application(bs)
+{
+    var self = {};
+    self.bootstrapper = bs;
+    
+    self.start = function(){
+        self.bootstrapper.registerCore();
+        self.bootstrapper.registerModules();
+    };
+    
+    return self;
+}
+
+// ************* Rapid's Default BootStrapper *********************************************************
+function RapidBootstrapper()
+{
+    var self = {};
+    
+    self.modules = new Dictionary();
+    self.logger = new Logger();
+    self.container = new Container();
+    
+    self.registerCore = function(){
+        self.container.registerSingle("logger", "Logger");
+        self.container.registerSingle("fileManager", "FileManager");
+        self.container.registerSingle("regionManager", "RegionManager");
+        self.container.registerSingle("eventManager", "EventManager");        
+    };
+    
+    self.registerModule = function(modulename, module){
+        self.logger.log("Registering " + modulename + " to Bootstrapper");
+        self.modules.setItem(modulename, module);
+        self.container.register(module, module);
+    };
+    
+    self.startModules = function(){
+        self.modules.each(function(k,v){
+            var module = self.container.resolve(v);
+            module.init();
+            self.logger.log("Initiating " + k);
+        });
+    };
+    
+    return self;
+}
+
 // *********************** FileManager (fileManager) ***************************************
 function FileManager(logger) {
 

@@ -1,23 +1,6 @@
 function Bootstrapper() {
     
-    var self = this;
-    
-    self.modules = new Dictionary();
-    self.logger = new Logger();
-    self.container = new Container();
-    
-    self.registerCore = function(){
-        self.container.registerSingle("logger", "Logger");
-        self.container.registerSingle("fileManager", "FileManager");
-        self.container.registerSingle("regionManager", "RegionManager");
-        self.container.registerSingle("eventManager", "EventManager");        
-    };
-    
-    self.registerModule = function(modulename, module){
-        self.logger.log("Registering " + modulename + " to Bootstrapper");
-        self.modules.setItem(modulename, module);
-        self.container.register(module, module);
-    };
+    var self = RapidBootstrapper();
     
     self.registerModules = function(){
         var fileManager = self.container.resolve("fileManager");
@@ -37,21 +20,5 @@ function Bootstrapper() {
         });
     };
     
-    self.start = function(){
-        self.registerCore();
-        self.registerModules();
-    };
-    
-    self.startModules = function(){
-        self.modules.each(function(k,v){
-            var module = self.container.resolve(v);
-            module.init();
-            self.logger.log("Initiating " + k);
-        });
-    };
+    return self;
 }
-
-$(document).ready(function() {
-    var bootstrapper = new Bootstrapper();
-    bootstrapper.start();
-});
